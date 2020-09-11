@@ -45,11 +45,22 @@ function cartReducer(state, action) {
       break;
 
     case actionTypes.CREATE_ORDER_SUCCESS:
+    case actionTypes.CREATE_ORDER_FAILED:
       return Object.assign({}, state, {
         cart: action.cart,
         loading: action.loading,
         creating: action.creating,
         created: action.created,
+      });
+      break;
+
+    // If order is placed and a new product is placed in cart we need to reset order success state.
+    case 'ADD_TO_CART_SUCCESS':
+      return Object.assign({}, state, {
+        cart: action.cart,
+        loading: action.loading,
+        creating: false,
+        created: false,
       });
       break;
 

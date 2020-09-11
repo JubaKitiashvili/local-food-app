@@ -202,6 +202,7 @@ export function createOrderFailed(errorMessage, lang) {
   return {
     type: actionTypes.CREATE_ORDER_FAILED,
     creating: false,
+    created: false,
     title: trans('Order', lang),
     message: errorMessage
   }

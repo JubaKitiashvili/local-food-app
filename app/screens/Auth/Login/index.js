@@ -28,6 +28,7 @@ class Login extends React.Component {
       phone: null,
       password: null,
       terms: false,
+      viewPassword: false,
     }
   }
 
@@ -35,6 +36,12 @@ class Login extends React.Component {
     let state = this.state;
     state[type] = value;
     this.setState(state);
+  }
+
+  toggleViewPassword() {
+    this.setState({
+      viewPassword: !this.state.viewPassword
+    })
   }
 
   onLogin() {
@@ -70,7 +77,7 @@ class Login extends React.Component {
             <Image style={styles.logo} source={require('../../../../assets/images/logo-white.png')} />
             <View style={[styles.wrapper]}>
               <TextInput key='email' label={trans('Email', lang)} defaultValue={this.state.email} editable={!this.props.loading} placeholder={trans('Your email', lang)} onChangeText={this.onChange.bind(this, 'email')} autoCapitalize='none' keyboardType="email-address" />
-              <TextInput key='password' label={trans('Password', lang)} defaultValue={this.state.password} editable={!this.props.loading} placeholder={trans('Your password', lang)} onChangeText={this.onChange.bind(this, 'password')} secureTextEntry />
+              <TextInput key='password' label={trans('Password', lang)} defaultValue={this.state.password} editable={!this.props.loading} placeholder={trans('Your password', lang)} onChangeText={this.onChange.bind(this, 'password')} viewPassword={this.state.viewPassword} toggleViewPassword={this.toggleViewPassword.bind(this)} lang />
               {button}
             </View>
           </View>
