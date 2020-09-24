@@ -1,9 +1,9 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { View, Text } from 'react-native';
+import { RefreshControl, ScrollView, Text, View } from 'react-native';
 import moment from 'moment/min/moment-with-locales';
 import _ from 'lodash';
-import { Loader, Button, Empty, List, ListSection } from 'app/components';
+import { Alert, Loader, Button2, Empty, ListSection } from 'app/components';
 import CartItem from './components/CartItem';
 import * as actions from './actions';
 import { trans, priceHelper } from 'app/shared';
@@ -50,6 +50,7 @@ class Cart extends React.Component {
 
   groupCartDateItemLinksByDate(cartDateItemLinks) {
     let groupedCartDateItemLinks = [];
+
     for (let i = 0; i < cartDateItemLinks.length; i++) {
       let cartDateItemLink = cartDateItemLinks[i];
       let cartDate = cartDateItemLink.date;
@@ -76,35 +77,39 @@ class Cart extends React.Component {
     return groupedCartDateItemLinks;
   }
 
-  renderListSection(ca, sectionId, rowId) {
-    const cartDateItemLinks = ca.item
-    let m = moment(cartDateItemLinks.key);
-    let date = m.format('DD') + ' ' + trans(m.format('MMMM'), this.props.system.lang) + ' ' + m.format('YYYY');
+  renderCartItems(cart) {
+    let cartDateItemLinksByDate = this.groupCartDateItemLinksByDate(cart);
 
-    const { updatingCartItems } = this.props.cart;
+    return cartDateItemLinksByDate.map(cartDateItemLinks => {
+      let m = moment(cartDateItemLinks.key);
+      let date = m.format('DD') + ' ' + trans(m.format('MMMM'), this.props.system.lang) + ' ' + m.format('YYYY');
 
-    let listItems = _.map(cartDateItemLinks.items, (cartDateItemLink, index) => {
-      let loading = updatingCartItems.indexOf(cartDateItemLink.id) !== -1;
-      let cartItemProps = {
-        key: cartDateItemLink.id,
-        data: cartDateItemLink,
-        loading: loading,
-        onRemove: this.removeCartItem.bind(this),
-        onUpdate: this.updateCartItem.bind(this)
-      }
+      const { updatingCartItems } = this.props.cart;
 
-      return <CartItem {...cartItemProps} lang={this.props.system.lang} />;
+      let cartItems = cartDateItemLinks.items.map(cartDateItemLink => {
+        let loading = updatingCartItems.indexOf(cartDateItemLink.id) !== -1;
+        let cartItemProps = {
+          key: cartDateItemLink.id,
+          data: cartDateItemLink,
+          loading: loading,
+          onRemove: this.removeCartItem.bind(this),
+          onUpdate: this.updateCartItem.bind(this)
+        }
+
+        return <CartItem {...cartItemProps} lang={this.props.system.lang} />;
+      });
+
+      return (
+        <View key={cartDateItemLinks.key}>
+          <Text style={styles.date}>{trans('Pickup', this.props.system.lang)} {date}</Text>
+          {cartItems}
+        </View>
+      )
     });
-
-    return (
-      <ListSection label={trans('Pickup', this.props.system.lang) + ' ' + date} key={sectionId}>
-        {listItems}
-      </ListSection>
-    );
   }
 
   render() {
-    const { loading, refreshing, cart } = this.props.cart;
+    const { loading, refreshing, cart, updatingCartItems } = this.props.cart;
     const lang = this.props.system.lang;
     moment.locale(lang);
 
@@ -128,7 +133,7 @@ class Cart extends React.Component {
 
     if (!refreshing && _.isEmpty(cart)) {
       return (
-        <View style={{flex: 1, backgroundColor: globalStyle.backgroundColor}}>
+        <View style={{flex: 1, backgroundColor: globalStyle.color.white}}>
           <Empty icon="shopping-cart" header={trans('Shopping cart is empty', lang)} text={trans('Visit a node to find available products.', lang)} />
         </View>
       );
@@ -156,31 +161,54 @@ class Cart extends React.Component {
     })
     .value();
 
-    let cartDateItemLinksByDate = this.groupCartDateItemLinksByDate(cart);
+    let items = this.renderCartItems(cart);
 
-    let listProps = {
-      data: cartDateItemLinksByDate,
-      renderItem: this.renderListSection.bind(this),
-      onRefresh: this.fetchCart.bind(this, true),
-      refreshing: refreshing,
+    let message = null;
+    if (!this.props.auth.user.active) {
+      message = (
+        <Alert type="warning" title="" message={trans('You need to verify your email address before you can order.', lang)} />
+      );
     }
 
+    if (this.props.auth.user.membership_payments.length === 0) {
+      message = (
+        <Alert type="warning" title={trans('Support the future of food', lang)} message={trans('Local Food Nodes is funded by donations, amount free of choice. Your donation is valid for a year. \r\r Welcome to Local Food Nodes and thank you for supporting small-scale food production without intermediaries.\r\r#letsgolocal', lang)} />
+      );
+    }
+
+    let header = (
+      <View style={styles.headerView}>
+        <Text style={styles.headerText}>{totalCost}</Text>
+      </View>
+    );
+
+    let productCounter = (
+      <View style={styles.productCounterView}>
+        <Text style={styles.productCounterText}>{cart.length} {cart.length > 1 ? trans('products', lang) : trans('product', lang)}</Text>
+      </View>
+    );
+
     return (
-      <View style={{flex: 1}}>
-        <List {...listProps} />
-        <View style={styles.orderWrapper}>
-          <View style={styles.orderTotals}>{totalCost}</View>
-          <Button loading={this.props.cart.creating} icon='shopping-cart' title={trans('Send order', lang)} onPress={this.createOrder.bind(this)} />
-        </View>
+      <View style={{flex: 1, backgroundColor: globalStyle.color.white}}>
+        {header}
+        {productCounter}
+        <ScrollView style={{paddingHorizontal: 15}} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={this.fetchCart.bind(this, true)} />}>
+          {message}
+          {items}
+          <View style={{marginTop: 30}}>
+            <Button2 type="warning" loading={this.props.cart.creating} title={trans('Send order', lang)} onPress={this.createOrder.bind(this)} />
+          </View>
+        </ScrollView>
       </View>
     );
   }
 }
 
 function mapStateToProps(state) {
-  const { cart, system } = state;
+  const { auth, cart, system } = state;
 
   return {
+    auth,
     cart,
     system,
   };
@@ -189,34 +217,30 @@ function mapStateToProps(state) {
 export default connect(mapStateToProps)(Cart);
 
 let styles = {
-  totalCost: {
-    alignSelf: 'center',
+  headerView: {
+    alignItems: 'center',
+    backgroundColor: globalStyle.color.red,
+    paddingBottom: 32,
   },
-  orderWrapper: {
-    backgroundColor: globalStyle.mainPrimaryColor,
-    flexDirection: 'row',
-    padding: 15,
-
-    width: '100%',
-  },
-  orderTotals: {
-    flex: 1,
-    flexDirection: 'column',
-  },
-  orderText: {
+  headerText: {
     color: '#fff',
+    fontFamily: 'montserrat-regular',
+    fontSize: 20,
+  },
+  productCounterView: {
+    alignItems: 'center',
+    backgroundColor: globalStyle.color.beige,
+    padding: 12,
+  },
+  productCounterText: {
+    color: '#000',
+    fontFamily: 'montserrat-regular',
+    fontSize: 16,
+  },
+  date: {
+    color: globalStyle.color.black,
     fontFamily: 'montserrat-semibold',
-  },
-  orderButton: {
-    flex: 1,
-    button: {
-      backgroundColor: '#ff9800',
-    },
-    title: {
-      color: '#333',
-    },
-    icon: {
-      color: '#333',
-    }
-  },
+    fontSize: 16,
+    marginVertical: 32,
+  }
 };

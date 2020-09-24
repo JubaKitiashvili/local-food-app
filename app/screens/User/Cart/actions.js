@@ -29,7 +29,6 @@ export function fetchCart(refreshing) {
 export function refreshCart() {
   return {
     type: actionTypes.REFRESH_CART,
-    cart: null,
     refreshing: true,
   }
 }
@@ -121,9 +120,10 @@ export function updateCartItem(id, quantity, lang) {
         }
       });
 
-      let cartItemOrItems = await response.json();
-      dispatch(updatedCartItems(cartItemOrItems));
+      let cartItem = await response.json();
+      dispatch(updatedCartItem(cartItem));
     } catch (error) {
+      console.log(error);
       sharedActions.systemActions.checkMaintenanceMode(dispatch, error);
 
       let errorMessage = await error.text();
@@ -139,10 +139,10 @@ export function updatingCartItem(id) {
   }
 }
 
-export function updatedCartItems(cartItems) {
+export function updatedCartItem(cartItem) {
   return {
     type: actionTypes.UPDATED_CART_ITEMS,
-    cartItems: cartItems
+    cartItem: cartItem,
   }
 }
 

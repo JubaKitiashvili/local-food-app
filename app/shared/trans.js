@@ -15,7 +15,7 @@ export default function trans(string, lang) {
   key = key.replace(/  +/g, ' ');
   key = key.trim();
   key = key.replace(/ /g, '_');
-  key = key.toLowerCase();
+  // key = key.toLowerCase();
 
   return currentLang[key] ? currentLang[key] : string;
 }

@@ -14,7 +14,7 @@ function cartReducer(state, action) {
       });
       break;
 
-    case actionTypes.REFRESHING_CART:
+    case actionTypes.REFRESH_CART:
       return Object.assign({}, state, {
         refreshing: action.refreshing,
       });
@@ -27,9 +27,26 @@ function cartReducer(state, action) {
       });
       break;
 
-    case actionTypes.UPDATED_CART_ITEMS:
+    case actionTypes.UPDATING_CART_ITEM:
       return Object.assign({}, state, {
-        cart: action.cartItems
+        updatingCartItems: [action.id]
+      });
+      break;
+
+    case actionTypes.UPDATED_CART_ITEMS:
+      let updatingCartItems = state.updatingCartItems;
+      let index = updatingCartItems.indexOf(action.cartItem.id);
+
+      if (index > -1) {
+        updatingCartItems.splice(index, 1);
+      }
+
+
+      return Object.assign({}, state, {
+        updatingCartItems: updatingCartItems,
+        cart: state.cart.map(cartItem => {
+          return action.cartItem.id === cartItem.id ? action.cartItem : cartItem;
+        }),
       });
       break;
 

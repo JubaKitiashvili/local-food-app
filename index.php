@@ -51,7 +51,7 @@ foreach ($stringKeys as $string) {
   $key = preg_replace('/[^a-z0-9]+/i', ' ', $string);
   $key = trim($key);
   $key = str_replace(" ", "_", $key);
-  $key = strtolower($key);
+  // $key = strtolower($key);
 
   $json[$key] = $string;
 }

@@ -34,7 +34,7 @@ class Empty extends Component {
 let styles = {
   view: {
     alignItems: 'center',
-    backgroundColor: globalStyle.backgroundColor,
+    backgroundColor: globalStyle.color.white,
     flex: 1,
     justifyContent: 'center',
   },

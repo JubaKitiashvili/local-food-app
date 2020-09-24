@@ -1,7 +1,9 @@
+import Alert from './Alert';
 import Badge from './Badge';
 import BadgeDate from './BadgeDate';
 import BadgeWrapper from './BadgeWrapper';
 import Button from './Button';
+import Button2 from './Button2';
 import Card from './Card';
 import ContentWrapper from './ContentWrapper';
 import Empty from './Empty';
@@ -18,10 +20,12 @@ import SelectInput from './SelectInput';
 import TextInput from './TextInput';
 
 export {
+  Alert,
   Badge,
   BadgeDate,
   BadgeWrapper,
   Button,
+  Button2,
   Card,
   ContentWrapper,
   Empty,

@@ -29,7 +29,7 @@ const rootReducer = combineReducers({
   swish: swishReducer,
   system: systemReducer,
   logger: function(state, action) {
-    // console.log(action.type);
+    console.log(action.type);
     return Object.assign({}, state, {});
   }
 });

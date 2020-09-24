@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, TouchableOpacity, Text } from 'react-native';
-import { FontAwesome as Icon } from '@expo/vector-icons';
+import { View, TouchableOpacity, Text, ActivityIndicator } from 'react-native';
+import { FontAwesome as Icon, SimpleLineIcons as SimpleLineIcon } from '@expo/vector-icons';
 
-import { Card, Link } from 'app/components';
+import { Link } from 'app/components';
 import { trans, priceHelper, unitHelper } from 'app/shared';
 import globalStyle from 'app/styles';
 
@@ -33,6 +33,7 @@ export default class CartItem extends React.Component {
     const { data } = this.props;
 
     const cartItem = data.item;
+
     const product = cartItem.product;
     const variant = cartItem.variant;
     const producer = cartItem.producer;
@@ -61,147 +62,96 @@ export default class CartItem extends React.Component {
       packageUnit = <Text numberOfLines={1} style={styles.packageUnitText}>{packageUnit}</Text>;
     }
 
-    let quantity = (
-      <View style={quantityStyle.quantity}>
-        <View style={quantityStyle.quantity}>
-          <TouchableOpacity style={quantityStyle.decrease} onPress={this.onDecrease.bind(this)}>
-            <Icon name='minus-circle' style={quantityStyle.icon} />
-          </TouchableOpacity>
-          <View style={quantityStyle.buttonWrapper}>
-            <View style={quantityStyle.button}>
-              <Text style={quantityStyle.buttonText}>{data.quantity}</Text>
-            </View>
-          </View>
-          <TouchableOpacity style={quantityStyle.increase} onPress={this.onIncrease.bind(this)}>
-            <Icon name='plus-circle' style={quantityStyle.icon} />
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
+    let quantityPrice = <Text style={styles.quantity}>{data.quantity} á {productPrice}</Text>;
 
-    let trash = (
-      <View style={styles.footer}>
-        <View style={styles.priceWrapper}>
-          <Text style={styles.priceText}>{trans('Total', lang)}: {totalPrice}</Text>
+    if (this.props.loading) {
+      quantityPrice = (
+        <View style={styles.loader}>
+          <ActivityIndicator color="#333" />
         </View>
-        <Link title={trans('delete', lang)} onPress={this.removeCartItem.bind(this)} />
-      </View>
-    );
+      );
+    }
 
     return (
-      <View>
-        <Card key={data.ref} footer={trash} style={styles.card}>
-          {productName}
-          {variantName}
-          {packageUnit}
-
-          <View style={styles.row}>
-            <View style={[styles.priceWrapper, {marginVertical: 10}]}>
-              <Text style={styles.priceText}>{productPrice}</Text>
-            </View>
+      <View key={data.ref} style={styles.cartItem}>
+        <View style={styles.leftColumn}>
+          <Text style={styles.title}>{cartItem.product_variant_name}</Text>
+          <Text style={styles.metadata}>{cartItem.producer.name}</Text>
+          {quantityPrice}
+        </View>
+        <View style={styles.rightColumn}>
+          <View style={styles.quantityControl.view}>
+            <TouchableOpacity style={styles.quantityControl.button} onPress={this.onDecrease.bind(this)}>
+              <SimpleLineIcon name='minus' style={styles.quantityControl.icon} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.quantityControl.button} onPress={this.onIncrease.bind(this)}>
+              <SimpleLineIcon name='plus' style={styles.quantityControl.icon} />
+            </TouchableOpacity>
           </View>
-
-          <View style={styles.producerNodeWrapper}>
-            <Text style={styles.producer}>{cartItem.producer.name} - {cartItem.node.name}</Text>
-          </View>
-
-          <View style={styles.row}>
-            {quantity}
-          </View>
-        </Card>
+          <TouchableOpacity style={styles.deleteButton} onPress={this.removeCartItem.bind(this)}>
+            <Text style={styles.deleteButton}>{trans('Delete', lang)}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     );
   }
 }
 
 let styles = {
-  card: {
-    card: {
-      marginBottom: 0
-    }
+  leftColumn: {
+    flexShrink: 1,
   },
-  productName: {
-    fontFamily: 'montserrat-semibold',
-  },
-  producerNodeWrapper: {
-    flex: 1,
-    flexDirection: 'row',
-  },
-  producer: {
-    color: '#b4b4b0',
-    fontFamily: 'montserrat-regular',
-  },
-  node: {
-    color: '#b4b4b0',
-    fontFamily: 'montserrat-regular',
-  },
-  row: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  footer: {
-    alignItems: 'center',
-    flex: 1,
-    flexDirection: 'row',
+  rightColumn: {
+    display: 'flex',
+    alignItems: 'flex-end',
     justifyContent: 'space-between',
   },
-  priceWrapper: {
-    backgroundColor: globalStyle.mainPrimaryColor,
-    borderRadius: 15,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-  },
-  priceText: {
-    color: '#fff',
-    fontFamily: 'montserrat-semibold',
-  }
-}
-
-const quantityStyle = {
-  quantity: {
-    backgroundColor: '#fff',
-    borderColor: '#e4e4e0',
-    justifyContent: 'center',
-    flex: 1,
+  cartItem: {
+    borderBottomWidth: 1,
+    borderColor: globalStyle.color.red16,
+    display: 'flex',
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingBottom: 21,
   },
-  variantName: {
+  title: {
+    color: globalStyle.color.red,
     fontFamily: 'montserrat-semibold',
+    fontSize: 14,
+    lineHeight: 22,
   },
-  alignRight: {
-    textAlign: 'right',
+  metadata: {
+    color: globalStyle.color.black,
+    fontFamily: 'montserrat-regular',
+    fontSize: 14,
+    lineHeight: 22,
   },
-  decrease: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  increase: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  icon: {
-    color: '#333',
-    fontSize: 30,
-  },
-  buttonWrapper: {
-    alignItems: 'center',
-    marginHorizontal: 20,
-    marginTop: 5,
-    marginBottom: 5,
-  },
-  button: {
-    justifyContent: 'center',
-    backgroundColor: globalStyle.mainPrimaryColor,
-    borderRadius: 100,
-    padding: 10,
-    width: 60,
-    height: 60,
-  },
-  buttonText: {
-    color: '#fff',
+  quantity: {
+    color: globalStyle.color.black,
     fontFamily: 'montserrat-semibold',
-    fontSize: 12,
-    textAlign: 'center',
+    fontSize: 18,
+    lineHeight: 22,
   },
+  quantityControl: {
+    view: {
+      display: 'flex',
+      flexDirection: 'row',
+    },
+    button: {
+      marginLeft: 15,
+    },
+    icon: {
+      color: globalStyle.color.lightGrey,
+      fontSize: 32,
+    },
+  },
+  deleteButton: {
+    color: globalStyle.color.lightGrey,
+    fontFamily: 'montserrat-regular',
+  },
+  loader: {
+    alignItems: 'flex-start',
+    display: 'flex',
+    marginBottom: 2, // Avoid jumpy behaviour
+  }
 };

@@ -66,32 +66,31 @@ export default class OrderForm extends React.Component {
 
     let quantityForm = null;
 
-    if (this.props.auth.user && this.props.auth.user.active && this.props.auth.user.membership_payments.length > 0) {
-      // Always show order form if product doesn't use stock.
-      if (!product.has_stock || parseInt(availableQuantity) > 0) {
-        let availableText = `${this.state.quantity}/${availableQuantity}`;
-        if (!product.has_stock) {
-          availableText = this.state.quantity;
-        }
 
-        quantityForm = (
-          <View style={styles.quantity}>
-            <TouchableOpacity style={styles.decrease} onPress={this.onDecrease.bind(this)}>
-              <Icon name='minus-circle' style={styles.icon}  />
-            </TouchableOpacity>
-            <View style={styles.buttonWrapper}>
-              <View style={styles.button}>
-                <Text numberOfLines={1} style={styles.buttonText}>{availableText}</Text>
-              </View>
-            </View>
-            <TouchableOpacity style={styles.increase} onPress={this.onIncrease.bind(this)}>
-              <Icon name='plus-circle' style={styles.icon} />
-            </TouchableOpacity>
-          </View>
-        );
-      } else {
-        quantityForm = <Text style={styles.soldout}>{trans('Sold out')}</Text>;
+    // Always show order form if product doesn't use stock.
+    if (!product.has_stock || parseInt(availableQuantity) > 0) {
+      let availableText = `${this.state.quantity}/${availableQuantity}`;
+      if (!product.has_stock) {
+        availableText = this.state.quantity;
       }
+
+      quantityForm = (
+        <View style={styles.quantity}>
+          <TouchableOpacity style={styles.decrease} onPress={this.onDecrease.bind(this)}>
+            <Icon name='minus-circle' style={styles.icon}  />
+          </TouchableOpacity>
+          <View style={styles.buttonWrapper}>
+            <View style={styles.button}>
+              <Text numberOfLines={1} style={styles.buttonText}>{availableText}</Text>
+            </View>
+          </View>
+          <TouchableOpacity style={styles.increase} onPress={this.onIncrease.bind(this)}>
+            <Icon name='plus-circle' style={styles.icon} />
+          </TouchableOpacity>
+        </View>
+      );
+    } else {
+      quantityForm = <Text style={styles.soldout}>{trans('Sold out')}</Text>;
     }
 
     let productPriceItem = (

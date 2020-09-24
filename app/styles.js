@@ -28,4 +28,15 @@ export default {
   backgroundColor: '#efeadf',
   mainPrimaryColor: '#bf360c',
   mainAccentColor: '#ff9800',
+  color: {
+    beige: '#fef2dd',
+    black: '#000',
+    green: '#8bc34a',
+    grey: 'rgba(0,0,0,0.54)',
+    lightGrey: 'rgba(0,0,0,0.32)',
+    orange: '#ff9800',
+    red: '#bf360c',
+    red16: 'rgba(191,54,12,0.16)',
+    white: '#fff',
+  }
 };

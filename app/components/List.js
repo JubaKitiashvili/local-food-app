@@ -11,16 +11,15 @@ export default class List extends React.Component {
   render() {
     let refreshing = this.props.refreshing || false;
     let mergedStyles = styleMerger.merge(styles, this.props.style);
-    
 
     return (
-      <FlatList 
-      {...this.props} 
-      contentContainerStyle={{padding: 15}} 
-      removeClippedSubviews={false} 
+      <FlatList
+      {...this.props}
+      contentContainerStyle={{padding: 15}}
+      removeClippedSubviews={false}
       onRefresh={this.onRefresh}
       refreshing={refreshing}
-      style={mergedStyles.list} 
+      style={mergedStyles.list}
       keyExtractor={(item, index) => item.key || index.toString()}
       />
     );

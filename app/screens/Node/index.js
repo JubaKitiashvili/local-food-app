@@ -246,7 +246,7 @@ class Node extends React.Component {
       }
     }
 
-    let userNotice = null;
+    /* let userNotice = null;
     let userNoticeMessage = null;
     if (this.props.auth.user && this.props.auth.user.membership_payments.length === 0) {
       // If logged in but not a member
@@ -272,7 +272,7 @@ class Node extends React.Component {
           {userNoticeMessage}
         </View>
       );
-    }
+    } */
 
     let addToCartNotice = null;
     if (this.state.addToCart) {
@@ -298,7 +298,6 @@ class Node extends React.Component {
         <DatePicker dates={dates} onSelectDate={this.onSelectDate.bind(this)} selectedDate={this.getSelectedDate()} lang={lang} />
         {content}
         {addToCartNotice}
-        {userNotice}
       </View>
     );
   }
