@@ -123,8 +123,11 @@ export function updateCartItem(id, quantity, lang) {
       let cartItem = await response.json();
       dispatch(updatedCartItem(cartItem));
     } catch (error) {
-      console.log(error);
       sharedActions.systemActions.checkMaintenanceMode(dispatch, error);
+
+      if (error.status === 410) {
+        dispatch(removeCartItem(id, lang));
+      }
 
       let errorMessage = await error.text();
       dispatch(updatingCartFailed(errorMessage, lang));
@@ -132,23 +135,23 @@ export function updateCartItem(id, quantity, lang) {
   }
 }
 
-export function updatingCartItem(id) {
+export function updatingCartItem(cartItemId) {
   return {
     type: actionTypes.UPDATING_CART_ITEM,
-    id: id,
+    id: cartItemId,
   }
 }
 
 export function updatedCartItem(cartItem) {
   return {
-    type: actionTypes.UPDATED_CART_ITEMS,
+    type: actionTypes.UPDATED_CART_ITEM,
     cartItem: cartItem,
   }
 }
 
 export function updatingCartFailed(errorMessage, lang) {
   return {
-    type: actionTypes.UPDATING_CART_FAILED,
+    type: actionTypes.UPDATING_CART_ITEM_FAILED,
     title: trans('Cart', lang),
     message: errorMessage,
   }

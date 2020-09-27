@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { ScrollView, RefreshControl, View, Text } from 'react-native';
+import { ScrollView, RefreshControl, View, Text, ActivityIndicator } from 'react-native';
 import { FontAwesome as Icon } from '@expo/vector-icons';
 import globalStyle from 'app/styles';
 
@@ -13,15 +13,35 @@ class Empty extends Component {
     let refreshing = this.props.refreshing || false;
 
     if (this.props.onRefresh) {
-      refreshControl = <RefreshControl onRefresh={this.onRefresh.bind(this)} refreshing={refreshing} />;
+      refreshControl = <RefreshControl
+        onRefresh={this.onRefresh.bind(this)}
+        refreshing={false}
+        tintColor={globalStyle.color.iosLightGrey}
+        color={globalStyle.color.iosLightGrey}
+      />;
+    }
+
+    let icon = null;
+    if (this.props.icon) {
+      let iconContent = <Icon style={styles.icon} name={this.props.icon} />;
+
+      if (refreshing) {
+        iconContent = <ActivityIndicator color={globalStyle.color.white} />
+      }
+
+      icon = (
+        <View style={styles.iconWrapper}>
+          {iconContent}
+        </View>
+      );
+    } else {
+
     }
 
     return (
       <ScrollView refreshControl={refreshControl} contentContainerStyle={{flex: 1}}>
         <View style={styles.view}>
-          <View style={styles.iconWrapper}>
-              <Icon style={styles.icon} name={this.props.icon} />
-          </View>
+          {icon}
           <Text style={styles.header}>{this.props.header}</Text>
           <Text style={styles.text}>{this.props.text}</Text>
           {this.props.action}
@@ -40,7 +60,7 @@ let styles = {
   },
   iconWrapper: {
     alignItems: 'center',
-    backgroundColor: '#bc360c',
+    backgroundColor: globalStyle.color.red,
     borderRadius: 200,
     height: 100,
     justifyContent: 'center',
@@ -48,20 +68,20 @@ let styles = {
     width: 100,
   },
   icon: {
-    color: globalStyle.backgroundColor,
+    color: globalStyle.color.white,
     fontSize: 48,
   },
   header: {
-    color: '#333',
+    color: globalStyle.color.black,
     fontFamily: 'montserrat-semibold',
     fontSize: 16,
     textAlign: 'center',
   },
   text: {
-    color: '#333',
+    color: globalStyle.color.black,
     fontSize: 14,
     fontFamily: 'montserrat-regular',
-    margin: 15,
+    margin: 5,
     textAlign: 'center',
   }
 };

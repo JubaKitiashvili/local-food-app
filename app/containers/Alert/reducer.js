@@ -5,7 +5,7 @@ function alertReducer(state, action) {
     // Errors
     case 'LOGIN_FAILED':
     case 'CREATE_ACCOUNT_FAILED':
-    case 'UPDATING_CART_FAILED':
+    case 'UPDATING_CART_ITEM_FAILED':
     case 'ADD_TO_CART_FAILED':
     case 'REMOVE_CART_ITEM_FAILED':
     case 'CREATE_ORDER_FAILED':

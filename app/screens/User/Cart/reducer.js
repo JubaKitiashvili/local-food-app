@@ -33,7 +33,7 @@ function cartReducer(state, action) {
       });
       break;
 
-    case actionTypes.UPDATED_CART_ITEMS:
+    case actionTypes.UPDATED_CART_ITEM:
       let updatingCartItems = state.updatingCartItems;
       let index = updatingCartItems.indexOf(action.cartItem.id);
 
@@ -41,7 +41,15 @@ function cartReducer(state, action) {
         updatingCartItems.splice(index, 1);
       }
 
+      return Object.assign({}, state, {
+        updatingCartItems: updatingCartItems,
+        cart: state.cart.map(cartItem => {
+          return action.cartItem.id === cartItem.id ? action.cartItem : cartItem;
+        }),
+      });
+      break;
 
+    case actionTypes.UPDATING_CART_ITEM_FAILED:
       return Object.assign({}, state, {
         updatingCartItems: updatingCartItems,
         cart: state.cart.map(cartItem => {

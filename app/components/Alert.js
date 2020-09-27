@@ -17,6 +17,8 @@ export default class Alert extends React.Component {
         icon = <Icon style={styles.icon} name="warning" />;
       } else if (this.props.type === 'danger') {
         icon = <Icon style={styles.icon} name="times-circle" />;
+      } else {
+        icon = <Icon style={styles.icon} name="info-circle" />;
       }
     }
 
@@ -44,10 +46,10 @@ export default class Alert extends React.Component {
 let styles = {
   view: {
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderColor: '#fff',
+    backgroundColor: globalStyle.color.white,
+    borderColor: globalStyle.color.black,
     borderWidth: 1,
-    color: '#000',
+    color: globalStyle.color.black,
     flexDirection: 'row',
     marginVertical: 15,
     success: {
@@ -61,11 +63,12 @@ let styles = {
     }
   },
   icon: {
-    color: '#fff',
+    color: globalStyle.color.white,
     fontSize: 32,
     flex: 1,
   },
   iconView: {
+    backgroundColor: globalStyle.color.black,
     display: 'flex',
     justifyContent: 'center',
     padding: 16,

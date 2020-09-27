@@ -14,7 +14,6 @@ class Cart extends React.Component {
     super(props);
     this.state = {
       dataSource: null,
-      refreshing: false,
     };
   }
 
@@ -51,27 +50,29 @@ class Cart extends React.Component {
   groupCartDateItemLinksByDate(cartDateItemLinks) {
     let groupedCartDateItemLinks = [];
 
-    for (let i = 0; i < cartDateItemLinks.length; i++) {
-      let cartDateItemLink = cartDateItemLinks[i];
-      let cartDate = cartDateItemLink.date;
-      let key = moment(cartDate.date.date).format('YYYYMMDD');
+    if (cartDateItemLinks) {
+      for (let i = 0; i < cartDateItemLinks.length; i++) {
+        let cartDateItemLink = cartDateItemLinks[i];
+        let cartDate = cartDateItemLink.date;
+        let key = moment(cartDate.date.date).format('YYYYMMDD');
 
-      // Check if key exists
-      let index = _.findIndex(groupedCartDateItemLinks, function(o) {
-        return o.key == key;
-      });
-
-      if (index === -1) {
-        groupedCartDateItemLinks.push({
-          key: key,
-          items: [],
+        // Check if key exists
+        let index = _.findIndex(groupedCartDateItemLinks, function(o) {
+          return o.key == key;
         });
 
-        // Set index
-        index = groupedCartDateItemLinks.length - 1;
-      }
+        if (index === -1) {
+          groupedCartDateItemLinks.push({
+            key: key,
+            items: [],
+          });
 
-      groupedCartDateItemLinks[index].items.push(cartDateItemLink);
+          // Set index
+          index = groupedCartDateItemLinks.length - 1;
+        }
+
+        groupedCartDateItemLinks[index].items.push(cartDateItemLink);
+      }
     }
 
     return groupedCartDateItemLinks;
@@ -110,12 +111,15 @@ class Cart extends React.Component {
 
   render() {
     const { loading, refreshing, cart, updatingCartItems } = this.props.cart;
+    const userIsActive = this.props.auth.user.active;
+    const userIsMember = this.props.auth.user.membership_payments.length > 0;
+    const userHasFreeOrder = this.props.auth.user.has_free_order;
     const lang = this.props.system.lang;
     moment.locale(lang);
 
     if (loading) {
       return (
-        <View style={{flex: 1, backgroundColor: globalStyle.backgroundColor}}>
+        <View style={{flex: 1, backgroundColor: globalStyle.color.white}}>
           <Loader />
         </View>
       );
@@ -125,17 +129,21 @@ class Cart extends React.Component {
       let action = <Button title={trans('View orders', lang)} onPress={this.navigateToOrders.bind(this)} />;
 
       return (
-        <View style={{flex: 1, backgroundColor: globalStyle.backgroundColor}}>
+        <View style={{flex: 1, backgroundColor: globalStyle.color.white}}>
           <Empty icon="shopping-cart" header={trans('Created!', lang)} text={trans('Your order is created.', lang)} action={action} />
         </View>
       );
     }
 
-    if (!refreshing && _.isEmpty(cart)) {
+    if (_.isEmpty(cart)) {
       return (
-        <View style={{flex: 1, backgroundColor: globalStyle.color.white}}>
-          <Empty icon="shopping-cart" header={trans('Shopping cart is empty', lang)} text={trans('Visit a node to find available products.', lang)} />
-        </View>
+          <Empty
+            icon="shopping-cart"
+            header={trans('Shopping cart is empty', lang)}
+            text={trans('Visit a node to find available products.', lang)}
+            onRefresh={this.fetchCart.bind(this, true)}
+            refreshing={refreshing}
+          />
       );
     }
 
@@ -163,30 +171,55 @@ class Cart extends React.Component {
 
     let items = this.renderCartItems(cart);
 
+    // Messages
     let message = null;
-    if (!this.props.auth.user.active) {
+    if (!userIsActive) {
       message = (
         <Alert type="warning" title="" message={trans('You need to verify your email address before you can order.', lang)} />
       );
     }
 
-    if (this.props.auth.user.membership_payments.length === 0) {
+    if (!userIsMember) {
       message = (
-        <Alert type="warning" title={trans('Support the future of food', lang)} message={trans('Local Food Nodes is funded by donations, amount free of choice. Your donation is valid for a year. \r\r Welcome to Local Food Nodes and thank you for supporting small-scale food production without intermediaries.\r\r#letsgolocal', lang)} />
+        <Alert type="warning" title={trans('Support the future of food', lang)} message={trans('Local Food Nodes is funded by donations, amount free of choice. Your donation is valid for a year.\r\rWelcome to Local Food Nodes and thank you for supporting small-scale food production without intermediaries.\r\r#letsgolocal', lang)} />
       );
     }
 
-    let header = (
-      <View style={styles.headerView}>
-        <Text style={styles.headerText}>{totalCost}</Text>
-      </View>
-    );
+    if (userHasFreeOrder) {
+      message = (
+        <Alert type="success" title={trans('First order for free', lang)} message={trans('Local Food Nodes is funded by donations, amount free of choice. To find out if you like this service, make your first booking without having to donate first.\r\rWelcome to Local Food Nodes!\r\r#letsgolocal', lang)} />
+      );
+    }
 
-    let productCounter = (
-      <View style={styles.productCounterView}>
-        <Text style={styles.productCounterText}>{cart.length} {cart.length > 1 ? trans('products', lang) : trans('product', lang)}</Text>
-      </View>
-    );
+    // Header
+    let header = null;
+    if (items.length > 0) {
+      header = (
+        <View style={styles.headerView}>
+          <Text style={styles.headerText}>{totalCost}</Text>
+        </View>
+      );
+    }
+
+    // Product counter
+    let productCounter = null;
+    if (items.length > 0) {
+      productCounter = (
+        <View style={styles.productCounterView}>
+          <Text style={styles.productCounterText}>{cart.length} {cart.length > 1 ? trans('products', lang) : trans('product', lang)}</Text>
+        </View>
+      );
+    }
+
+    // Buttons
+    let buttons = null;
+    if (items.length > 0 && userHasFreeOrder || (userIsActive && userIsMember)) {
+      buttons = (
+        <View style={{marginTop: 30}}>
+          <Button2 type="warning" loading={this.props.cart.creating} title={trans('Send order', lang)} onPress={this.createOrder.bind(this)} />
+        </View>
+      );
+    }
 
     return (
       <View style={{flex: 1, backgroundColor: globalStyle.color.white}}>
@@ -195,9 +228,7 @@ class Cart extends React.Component {
         <ScrollView style={{paddingHorizontal: 15}} refreshControl={<RefreshControl refreshing={refreshing} onRefresh={this.fetchCart.bind(this, true)} />}>
           {message}
           {items}
-          <View style={{marginTop: 30}}>
-            <Button2 type="warning" loading={this.props.cart.creating} title={trans('Send order', lang)} onPress={this.createOrder.bind(this)} />
-          </View>
+          {buttons}
         </ScrollView>
       </View>
     );
@@ -220,7 +251,7 @@ let styles = {
   headerView: {
     alignItems: 'center',
     backgroundColor: globalStyle.color.red,
-    paddingBottom: 32,
+    paddingBottom: 22,
   },
   headerText: {
     color: '#fff',
