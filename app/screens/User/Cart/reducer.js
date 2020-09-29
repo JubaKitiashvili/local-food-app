@@ -5,11 +5,11 @@ function cartReducer(state, action) {
   switch (action.type) {
     case actionTypes.REQUEST_CART:
     case actionTypes.RECEIVE_CART:
-    case actionTypes.REMOVED_CART_ITEM:
       return Object.assign({}, state, {
         cart: action.cart,
         loading: action.loading,
         updatingCartItems: [],
+        removingCartItems: [],
         refreshing: action.refreshing || false,
       });
       break;
@@ -21,35 +21,45 @@ function cartReducer(state, action) {
       break;
 
     case actionTypes.REMOVING_CART_ITEM:
+      state.removingCartItems.push(action.cartDateItemLinkId);
+      return Object.assign({}, state, {
+        removingCartItems: [...new Set(state.removingCartItems)]
+      });
+      break;
+
+    case actionTypes.REMOVED_CART_ITEM:
     case actionTypes.REMOVE_CART_ITEM_FAILED:
-      return Object.assign({}, state, {
-        loading: action.loading,
-      });
-      break;
+      let removingCartItems = state.removingCartItems;
+      let removeIndex = removingCartItems.indexOf(action.cartDateItemLinkId);
 
-    case actionTypes.UPDATING_CART_ITEM:
-      return Object.assign({}, state, {
-        updatingCartItems: [action.id]
-      });
-      break;
-
-    case actionTypes.UPDATED_CART_ITEM:
-      let updatingCartItems = state.updatingCartItems;
-      let index = updatingCartItems.indexOf(action.cartItem.id);
-
-      if (index > -1) {
-        updatingCartItems.splice(index, 1);
+      if (removeIndex > -1) {
+        removingCartItems.splice(removeIndex, 1);
       }
 
       return Object.assign({}, state, {
-        updatingCartItems: updatingCartItems,
-        cart: state.cart.map(cartItem => {
-          return action.cartItem.id === cartItem.id ? action.cartItem : cartItem;
+        removingCartItems: removingCartItems,
+        cart: state.cart.filter(cartItem => {
+          return action.cartDateItemLinkId != cartItem.id;
         }),
       });
       break;
 
+    case actionTypes.UPDATING_CART_ITEM:
+      state.updatingCartItems.push(action.id);
+      return Object.assign({}, state, {
+        updatingCartItems: [...new Set(state.updatingCartItems)]
+      });
+      break;
+
+    case actionTypes.UPDATED_CART_ITEM:
     case actionTypes.UPDATING_CART_ITEM_FAILED:
+      let updatingCartItems = state.updatingCartItems;
+      let updateIndex = updatingCartItems.indexOf(action.cartItem.id);
+
+      if (updateIndex > -1) {
+        updatingCartItems.splice(updateIndex, 1);
+      }
+
       return Object.assign({}, state, {
         updatingCartItems: updatingCartItems,
         cart: state.cart.map(cartItem => {

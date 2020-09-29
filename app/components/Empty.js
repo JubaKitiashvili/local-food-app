@@ -41,10 +41,14 @@ class Empty extends Component {
     return (
       <ScrollView refreshControl={refreshControl} contentContainerStyle={{flex: 1}}>
         <View style={styles.view}>
-          {icon}
-          <Text style={styles.header}>{this.props.header}</Text>
-          <Text style={styles.text}>{this.props.text}</Text>
-          {this.props.action}
+          <View style={styles.content}>
+            {icon}
+            <Text style={styles.header}>{this.props.header}</Text>
+            <Text style={styles.text}>{this.props.text}</Text>
+          </View>
+          <View style={styles.action}>
+            {this.props.action}
+          </View>
         </View>
       </ScrollView>
     );
@@ -53,10 +57,16 @@ class Empty extends Component {
 
 let styles = {
   view: {
-    alignItems: 'center',
     backgroundColor: globalStyle.color.white,
     flex: 1,
     justifyContent: 'center',
+    paddingHorizontal: 15,
+  },
+  content: {
+    alignItems: 'center',
+  },
+  action: {
+    marginTop: 32,
   },
   iconWrapper: {
     alignItems: 'center',

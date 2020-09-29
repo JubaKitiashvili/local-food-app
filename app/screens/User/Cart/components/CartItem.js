@@ -112,7 +112,7 @@ let styles = {
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingBottom: 21,
+    paddingVertical: 21,
   },
   title: {
     color: globalStyle.color.red,
@@ -130,7 +130,8 @@ let styles = {
     color: globalStyle.color.black,
     fontFamily: 'montserrat-semibold',
     fontSize: 18,
-    lineHeight: 22,
+    lineHeight: 28,
+    marginLeft: 1,
   },
   quantityControl: {
     view: {
@@ -152,6 +153,8 @@ let styles = {
   loader: {
     alignItems: 'flex-start',
     display: 'flex',
-    marginBottom: 2, // Avoid jumpy behaviour
+    // Avoid jumpy behaviour
+    marginBottom: 0,
+    marginTop: 8,
   }
 };

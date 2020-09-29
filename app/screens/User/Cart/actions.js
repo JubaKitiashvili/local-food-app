@@ -59,16 +59,16 @@ export function receiveCart(cart) {
 export function removeCartItem(cartDateItemLinkId, lang) {
   return async function(dispatch, getState) {
     try {
-      dispatch(removingCartItem());
+      dispatch(removingCartItem(cartDateItemLinkId));
 
       let response = await api.call({
         url: `/api/v1/user/cart/${cartDateItemLinkId}`,
         method: 'delete',
       });
 
-      let updatedCart = await response.json();
+      let removedCartDateItemLinkId = await response.json();
 
-      dispatch(removedCartItem(updatedCart));
+      dispatch(removedCartItem(removedCartDateItemLinkId));
     } catch (error) {
       sharedActions.systemActions.checkMaintenanceMode(dispatch, error);
 
@@ -78,18 +78,17 @@ export function removeCartItem(cartDateItemLinkId, lang) {
   }
 }
 
-export function removingCartItem() {
+export function removingCartItem(cartDateItemLinkId) {
   return {
     type: actionTypes.REMOVING_CART_ITEM,
-    loading: true,
+    cartDateItemLinkId: cartDateItemLinkId
   }
 }
 
-export function removedCartItem(updatedCart) {
+export function removedCartItem(cartDateItemLinkId) {
   return {
     type: actionTypes.REMOVED_CART_ITEM,
-    cart: updatedCart,
-    loading: false,
+    cartDateItemLinkId: cartDateItemLinkId,
   }
 }
 
@@ -106,27 +105,27 @@ export function removeCartItemFailed(errorMessage, lang) {
  *
  * @return {function}
  */
-export function updateCartItem(id, quantity, lang) {
+export function updateCartItem(cartDateItemLinkId, quantity, lang) {
   return async function(dispatch, getState) {
     try {
-      dispatch(updatingCartItem(id));
+      dispatch(updatingCartItem(cartDateItemLinkId));
 
       let response = await api.call({
         url: '/api/v1/user/cart',
         method: 'put',
         body: {
-          cartDateItemLinkId: id,
+          cartDateItemLinkId: cartDateItemLinkId,
           quantity: quantity
         }
       });
 
-      let cartItem = await response.json();
-      dispatch(updatedCartItem(cartItem));
+      let cartDateItemLink = await response.json();
+      dispatch(updatedCartItem(cartDateItemLink));
     } catch (error) {
       sharedActions.systemActions.checkMaintenanceMode(dispatch, error);
 
       if (error.status === 410) {
-        dispatch(removeCartItem(id, lang));
+        dispatch(removeCartItem(cartDateItemLinkId, lang));
       }
 
       let errorMessage = await error.text();
@@ -135,17 +134,17 @@ export function updateCartItem(id, quantity, lang) {
   }
 }
 
-export function updatingCartItem(cartItemId) {
+export function updatingCartItem(cartDateItemLinkId) {
   return {
     type: actionTypes.UPDATING_CART_ITEM,
-    id: cartItemId,
+    id: cartDateItemLinkId,
   }
 }
 
-export function updatedCartItem(cartItem) {
+export function updatedCartItem(cartDateItemLink) {
   return {
     type: actionTypes.UPDATED_CART_ITEM,
-    cartItem: cartItem,
+    cartItem: cartDateItemLink,
   }
 }
 

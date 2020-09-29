@@ -85,14 +85,15 @@ class Cart extends React.Component {
       let m = moment(cartDateItemLinks.key);
       let date = m.format('DD') + ' ' + trans(m.format('MMMM'), this.props.system.lang) + ' ' + m.format('YYYY');
 
-      const { updatingCartItems } = this.props.cart;
+      const { updatingCartItems, removingCartItems } = this.props.cart;
 
       let cartItems = cartDateItemLinks.items.map(cartDateItemLink => {
         let loading = updatingCartItems.indexOf(cartDateItemLink.id) !== -1;
+        let removing = removingCartItems.indexOf(cartDateItemLink.id) !== -1;
         let cartItemProps = {
           key: cartDateItemLink.id,
           data: cartDateItemLink,
-          loading: loading,
+          loading: loading || removing,
           onRemove: this.removeCartItem.bind(this),
           onUpdate: this.updateCartItem.bind(this)
         }
@@ -126,7 +127,7 @@ class Cart extends React.Component {
     }
 
     if (this.props.cart.created) {
-      let action = <Button title={trans('View orders', lang)} onPress={this.navigateToOrders.bind(this)} />;
+      let action = <Button2 type="info" title={trans('View orders', lang)} onPress={this.navigateToOrders.bind(this)} />;
 
       return (
         <View style={{flex: 1, backgroundColor: globalStyle.color.white}}>
@@ -272,6 +273,6 @@ let styles = {
     color: globalStyle.color.black,
     fontFamily: 'montserrat-semibold',
     fontSize: 16,
-    marginVertical: 32,
+    marginTop: 32,
   }
 };
